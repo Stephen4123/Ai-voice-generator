@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoxCraft AI - Studio Text-to-Speech & Voice Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Top Header Navigation -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-icon">
+                    <i data-lucide="waves"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>VoxCraft <span>AI Studio</span></h1>
+                    <span class="badge">PRO v2.5</span>
+                </div>
+            </div>
+
+            <div class="header-status">
+                <div class="status-indicator online">
+                    <span class="dot"></span>
+                    <span class="status-text" id="engineStatus">Speech Engine Ready</span>
+                </div>
+                <div class="voice-count-badge" id="voiceCountBadge">
+                    <i data-lucide="mic"></i> <span id="voiceCount">0 Voices Available</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn btn-secondary btn-sm" id="btnImportFile">
+                    <i data-lucide="upload"></i> Import Text
+                </button>
+                <button class="btn btn-secondary btn-sm" id="btnShortcuts">
+                    <i data-lucide="keyboard"></i> Shortcuts
+                </button>
+                <button class="btn btn-gradient btn-sm" id="btnNewProject">
+                    <i data-lucide="plus"></i> New Script
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Studio Grid -->
+        <main class="studio-grid">
+            <!-- LEFT PANEL: Voice & Audio Tuning -->
+            <aside class="panel left-panel">
+                <div class="panel-header">
+                    <h2><i data-lucide="sliders"></i> Voice Controls</h2>
+                </div>
+
+                <div class="panel-scroll-content">
+                    <!-- Voice Selection Box -->
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Select Voice</span>
+                            <span class="sub-label" id="selectedLangCode">EN-US</span>
+                        </label>
+                        
+                        <!-- Search & Filter -->
+                        <div class="voice-search-box">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="voiceSearchInput" placeholder="Search voices or languages (Malayalam, English, Hindi...)">
+                        </div>
+
+                        <div class="filter-pills">
+                            <button class="pill active" data-filter="all">All</button>
+                            <button class="pill" data-filter="ml">Malayalam</button>
+                            <button class="pill" data-filter="en">English</button>
+                            <button class="pill" data-filter="hi">Hindi</button>
+                            <button class="pill" data-filter="es">Spanish</button>
+                            <button class="pill" data-filter="fr">French</button>
+                        </div>
+
+                        <div class="voice-select-wrapper">
+                            <select id="voiceSelect" class="custom-select">
+                                <option value="">Loading voices...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Voice Style / Preset Dropdown -->
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Preset Emotion / Style</span>
+                        </label>
+                        <div class="style-cards">
+                            <button class="style-card active" data-style="natural">
+                                <i data-lucide="sparkles"></i>
+                                <span>Natural</span>
+                            </button>
+                            <button class="style-card" data-style="narrator">
+                                <i data-lucide="book-open"></i>
+                                <span>Narrator</span>
+                            </button>
+                            <button class="style-card" data-style="energetic">
+                                <i data-lucide="zap"></i>
+                                <span>Energetic</span>
+                            </button>
+                            <button class="style-card" data-style="whisper">
+                                <i data-lucide="wind"></i>
+                                <span>Whisper</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Core Sliders: Speed, Pitch, Volume -->
+                    <div class="control-group">
+                        <div class="slider-item">
+                            <div class="slider-header">
+                                <label><i data-lucide="gauge"></i> Speech Speed (Rate)</label>
+                                <span class="slider-value" id="valSpeed">1.0x</span>
+                            </div>
+                            <input type="range" id="sliderSpeed" min="0.5" max="2.0" step="0.05" value="1.0">
+                        </div>
+
+                        <div class="slider-item">
+                            <div class="slider-header">
+                                <label><i data-lucide="music-2"></i> Voice Pitch</label>
+                                <span class="slider-value" id="valPitch">1.0</span>
+                            </div>
+                            <input type="range" id="sliderPitch" min="0.5" max="1.5" step="0.05" value="1.0">
+                        </div>
+
+                        <div class="slider-item">
+                            <div class="slider-header">
+                                <label><i data-lucide="volume-2"></i> Output Volume</label>
+                                <span class="slider-value" id="valVolume">100%</span>
+                            </div>
+                            <input type="range" id="sliderVolume" min="0" max="1" step="0.05" value="1.0">
+                        </div>
+                    </div>
+
+                    <!-- Accordion Section: Advanced Audio FX & EQ -->
+                    <div class="accordion">
+                        <button class="accordion-header" id="toggleAudioFX">
+                            <span><i data-lucide="sliders-horizontal"></i> Audio Effects & EQ</span>
+                            <i data-lucide="chevron-down" class="acc-icon"></i>
+                        </button>
+                        <div class="accordion-content" id="contentAudioFX">
+                            <div class="slider-item">
+                                <div class="slider-header">
+                                    <label>Bass Boost</label>
+                                    <span class="slider-value" id="valBass">0 dB</span>
+                                </div>
+                                <input type="range" id="sliderBass" min="-12" max="12" step="1" value="0">
+                            </div>
+
+                            <div class="slider-item">
+                                <div class="slider-header">
+                                    <label>Treble Clarity</label>
+                                    <span class="slider-value" id="valTreble">0 dB</span>
+                                </div>
+                                <input type="range" id="sliderTreble" min="-12" max="12" step="1" value="0">
+                            </div>
+
+                            <div class="slider-item">
+                                <div class="slider-header">
+                                    <label>Studio Reverb</label>
+                                    <span class="slider-value" id="valReverb">0%</span>
+                                </div>
+                                <input type="range" id="sliderReverb" min="0" max="100" step="5" value="0">
+                            </div>
+
+                            <div class="slider-item">
+                                <div class="slider-header">
+                                    <label>Echo Delay</label>
+                                    <span class="slider-value" id="valEcho">Off</span>
+                                </div>
+                                <input type="range" id="sliderEcho" min="0" max="0.5" step="0.05" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion Section: Background Music Mixer -->
+                    <div class="accordion">
+                        <button class="accordion-header" id="toggleBGMixer">
+                            <span><i data-lucide="music"></i> Background Sound Synth</span>
+                            <i data-lucide="chevron-down" class="acc-icon"></i>
+                        </button>
+                        <div class="accordion-content" id="contentBGMixer">
+                            <div class="control-group">
+                                <label class="control-label">Select Ambient Track</label>
+                                <select id="bgMusicSelect" class="custom-select">
+                                    <option value="off">Off (Speech Only)</option>
+                                    <option value="lofi">Lofi Chill Beats</option>
+                                    <option value="cosmos">Deep Space Synth</option>
+                                    <option value="rain">Zen Rain & Thunder</option>
+                                    <option value="meditation">Healing 432Hz Waves</option>
+                                </select>
+                            </div>
+                            <div class="slider-item">
+                                <div class="slider-header">
+                                    <label>Music Volume</label>
+                                    <span class="slider-value" id="valBGVolume">20%</span>
+                                </div>
+                                <input type="range" id="sliderBGVolume" min="0" max="0.5" step="0.02" value="0.15">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CENTER PANEL: Editor, Visualizer, Player -->
+            <section class="panel center-panel">
+                <!-- Toolbar above Editor -->
+                <div class="editor-toolbar">
+                    <div class="template-selector">
+                        <i data-lucide="file-text"></i>
+                        <select id="templateSelect" class="select-inline">
+                            <option value="">Sample Scripts & Templates...</option>
+                            <option value="ml_welcome">Malayalam - Welcome & Intro</option>
+                            <option value="yt_intro">YouTube Video Intro (High Energy)</option>
+                            <option value="podcast_intro">Podcast Teaser & Intro</option>
+                            <option value="ad_promo">Product Commercial Promo</option>
+                            <option value="meditation">Guided Breathing & Relaxation</option>
+                            <option value="tech_news">Tech News Briefing</option>
+                            <option value="story">Fantasy Storytelling</option>
+                        </select>
+                    </div>
+
+                    <div class="editor-stats">
+                        <span id="statWords"><i data-lucide="align-left"></i> 0 words</span>
+                        <span id="statChars"><i data-lucide="type"></i> 0 chars</span>
+                        <span id="statTime"><i data-lucide="clock"></i> Est: 0s</span>
+                    </div>
+
+                    <div class="editor-actions">
+                        <button class="btn-icon" id="btnClearText" title="Clear text">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                        <button class="btn-icon" id="btnCopyText" title="Copy text">
+                            <i data-lucide="copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Textarea Editor with Highlighting Overlay -->
+                <div class="editor-wrapper" id="dropZone">
+                    <div class="karaoke-overlay" id="karaokeOverlay"></div>
+                    <textarea id="textInput" placeholder="Type or paste your text here... You can also drag & drop text files (.txt, .md). Try Malayalam, English, or any supported language!"></textarea>
+                    
+                    <div class="drag-drop-hint" id="dragDropHint">
+                        <i data-lucide="file-up"></i>
+                        <p>Drop file to import text</p>
+                    </div>
+                </div>
+
+                <!-- Audio Visualizer Canvas Container -->
+                <div class="visualizer-container">
+                    <div class="vis-header">
+                        <div class="vis-title">
+                            <i data-lucide="activity"></i>
+                            <span>Real-time Audio Visualizer</span>
+                        </div>
+                        <div class="vis-modes">
+                            <button class="vis-mode-btn active" data-mode="waves" title="Fluid Waves">Waves</button>
+                            <button class="vis-mode-btn" data-mode="bars" title="Frequency Bars">Bars</button>
+                            <button class="vis-mode-btn" data-mode="circle" title="Glowing Ring">Ring</button>
+                            <button class="vis-mode-btn" data-mode="particles" title="Cyber Particles">Particles</button>
+                        </div>
+                    </div>
+                    <canvas id="visualizerCanvas" width="900" height="130"></canvas>
+                </div>
+
+                <!-- Player Control Dock -->
+                <div class="player-dock">
+                    <div class="player-left">
+                        <button class="btn btn-primary btn-hero" id="btnPlay">
+                            <i data-lucide="play" class="btn-play-icon"></i>
+                            <span id="lblPlayBtn">Generate & Play</span>
+                        </button>
+                        <button class="btn btn-danger btn-circle" id="btnStop" title="Stop Playback" disabled>
+                            <i data-lucide="square"></i>
+                        </button>
+                    </div>
+
+                    <!-- Progress Bar & Time -->
+                    <div class="player-center">
+                        <div class="time-display">
+                            <span id="currentTime">00:00</span>
+                            <span class="sep">/</span>
+                            <span id="totalTime">00:00</span>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-bg" id="progressTrack">
+                                <div class="progress-fill" id="progressFill"></div>
+                                <div class="progress-handle" id="progressHandle"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="player-right">
+                        <button class="btn btn-gradient" id="btnDownloadAudio" title="Download Spoken Speech Audio WAV">
+                            <i data-lucide="download"></i>
+                            <span>Download Speech</span>
+                        </button>
+                        <button class="btn btn-secondary" id="btnRecordMicVoice" title="Record Tab / Speaker System Audio">
+                            <i data-lucide="mic"></i>
+                            <span>Record Voice</span>
+                        </button>
+                        <button class="btn btn-secondary btn-icon-only" id="btnExportSRT" title="Export SRT Subtitles">
+                            <i data-lucide="subtitles"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: History & Saved Profiles -->
+            <aside class="panel right-panel">
+                <div class="panel-header">
+                    <h2><i data-lucide="history"></i> Studio Library</h2>
+                </div>
+
+                <div class="panel-scroll-content">
+                    <!-- Audio History Section -->
+                    <div class="library-section">
+                        <div class="section-title">
+                            <span>Recent Audio Clips</span>
+                            <button class="btn-link" id="btnClearHistory">Clear</button>
+                        </div>
+                        <div class="history-list" id="historyList">
+                            <div class="empty-state">
+                                <i data-lucide="disc"></i>
+                                <p>No audio generated yet. Click "Generate & Play" to record clips!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Saved Presets Section -->
+                    <div class="library-section">
+                        <div class="section-title">
+                            <span>Voice Presets</span>
+                            <button class="btn-link" id="btnSavePreset"><i data-lucide="plus"></i> Save Current</button>
+                        </div>
+                        <div class="presets-list" id="presetsList">
+                            <!-- Preset items rendered by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Shortcuts Reference -->
+                    <div class="library-section shortcuts-box">
+                        <h3><i data-lucide="zap"></i> Quick Shortcuts</h3>
+                        <ul class="shortcut-list">
+                            <li><kbd>Ctrl</kbd> + <kbd>Enter</kbd> <span>Play / Pause</span></li>
+                            <li><kbd>Esc</kbd> <span>Stop Speech</span></li>
+                            <li><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> <span>Export WAV</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="fileInput" accept=".txt,.md,.json" style="display: none;">
+
+    <!-- Notification Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Main JS Module -->
+    <script src="app.js"></script>
+</body>
+</html>
